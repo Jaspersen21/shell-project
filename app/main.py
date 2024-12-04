@@ -1,4 +1,14 @@
 import sys
+import os
+
+def find_executable(command):
+
+    path_dirs = os.environ.get("PATH", "").split(":")  # check file and change them to directories 
+    for  directory in path_dirs:
+        full_path = os.path.join(directory, command)
+        if os.path.isfile(full_path) and os.access(full_path, os.X_OK):  # Check if it's executable
+            return full_path
+    return None
 
 BUILTINS = {"echo", "exit", "type"}
 
@@ -35,10 +45,16 @@ def main():
                 if cmd_to_check in BUILTINS:
                     print(f"{cmd_to_check} is a shell builtin")
                 else:
-                    print(f"{cmd_to_check}: not found")
+                    executable_path = find_executable(cmd_to_check)
+                    if executable_path:
+                        print(f"{cmd_to_check} is {executable_path}")
+                    else:
+                        print(f"{cmd_to_check}: not found")    
+                
              else:
                 print("type: usage: type <command>")
              continue  
+        
 
         print(f"{command}: command not found")
 
