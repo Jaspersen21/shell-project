@@ -22,6 +22,11 @@ def main():
                 print(f"{command}: invalid syntax")
                 continue 
 
+        if command.startswith("echo"):
+            # Remove the "echo" part and print the rest of the command
+            print(command[5:].strip())  # Slice after "echo " and strip extra spaces
+            continue  
+
         print(f"{command}: command not found")
 
 
