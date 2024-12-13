@@ -48,6 +48,13 @@ def main():
         if command == "cd":
             if len(args) == 1:  # Ensure exactly one argument
                 path = args[0]
+                if path == "~":  # Handle the ~ character for the home directory
+                    home_dir = os.environ.get("HOME")
+                    if home_dir:
+                        path = home_dir
+                    else:
+                        print("cd: HOME environment variable is not set")
+                        continue
                 try:
                     os.chdir(path)  # Change the current working directory
                 except FileNotFoundError:
