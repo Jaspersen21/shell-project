@@ -11,7 +11,7 @@ def find_executable(command):
             return full_path
     return None
 
-BUILTINS = {"echo", "exit", "type", "pwd"}
+BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
 
 def main():
     while True: # infinite loop to keep  the shell running 
@@ -43,6 +43,21 @@ def main():
 
         if command == 'pwd':
             print(os.getcwd())  # Print the current working directory
+            continue
+
+        if command == "cd":
+            if len(args) == 1:  # Ensure exactly one argument
+                path = args[0]
+                try:
+                    os.chdir(path)  # Change the current working directory
+                except FileNotFoundError:
+                    print(f"cd: {path}: No such file or directory")
+                except NotADirectoryError:
+                    print(f"cd: {path}: Not a directory")
+                except PermissionError:
+                    print(f"cd: {path}: Permission denied")
+            else:
+                print("cd: usage: cd <directory>")
             continue
 
         if command == "type":
