@@ -11,7 +11,7 @@ def find_executable(command):
             return full_path
     return None
 
-BUILTINS = {"echo", "exit", "type"}
+BUILTINS = {"echo", "exit", "type", "pwd"}
 
 def main():
     while True: # infinite loop to keep  the shell running 
@@ -39,6 +39,10 @@ def main():
 
         if command == "echo":
             print(" ".join(args))  # Join the arguments with spaces and print
+            continue
+
+        if command == 'pwd':
+            print(os.getcwd())  # Print the current working directory
             continue
 
         if command == "type":
