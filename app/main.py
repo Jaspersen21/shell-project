@@ -1,41 +1,54 @@
 import sys
 import os
 import subprocess
-import shlex 
+import shlex  # For parsing quoted strings
+
+# List of supported shell built-ins
+BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
 
 def find_executable(command):
-
-    path_dirs = os.environ.get("PATH", "").split(":")  # check file and change them to directories 
-    for  directory in path_dirs:
+    """
+    Search for an executable in the directories listed in PATH.
+    Returns the full path if found, otherwise None.
+    """
+    path_dirs = os.environ.get("PATH", "").split(":")  # Get PATH and split into directories
+    for directory in path_dirs:
         full_path = os.path.join(directory, command)
         if os.path.isfile(full_path) and os.access(full_path, os.X_OK):  # Check if it's executable
             return full_path
     return None
 
 def parse_command(command_line):
+    """
+    Parse the command line input, handling single quotes properly.
+    """
     try:
         return shlex.split(command_line, posix=True)  # shlex handles quoted strings
     except ValueError as e:
         print(f"Error parsing command: {e}")
-        return []    
-
-BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
+        return []
 
 def main():
-    while True: # infinite loop to keep  the shell running 
-        sys.stdout.write("$ ") #writing the prompt 
-        sys.stdout.flush()  # ensuring the prompt is displayed immidiately
+    while True:  # Continuous loop to keep the shell running
+        # Display the shell prompt
+        sys.stdout.write("$ ")
+        sys.stdout.flush()  # Ensure the prompt is displayed immediately
 
-        command_line  = input().strip() 
+        # Read user input
+        command_line = input().strip()  # Remove leading/trailing whitespace
 
-        if not  command_line :
-            continue 
+        # Skip empty input
+        if not command_line:
+            continue
 
-        parts = command_line.split()
-        command = parts[0] #  firstpart ofthe  command line
-        args   = parts[1:] # remaining part is arguments
+        # Parse the command and its arguments
+        parts = parse_command(command_line)
+        if not parts:
+            continue
+        command = parts[0]  # First part is the command
+        args = parts[1:]    # Remaining parts are arguments
 
-
+        # Handle the exit command
         if command == "exit":
             if len(args) == 1 and args[0].isdigit():  # Exit with a specific code
                 sys.exit(int(args[0]))
@@ -45,14 +58,17 @@ def main():
                 print(f"{command_line}: invalid syntax")
                 continue
 
+        # Handle the echo command
         if command == "echo":
             print(" ".join(args))  # Join the arguments with spaces and print
             continue
 
-        if command == 'pwd':
+        # Handle the pwd command
+        if command == "pwd":
             print(os.getcwd())  # Print the current working directory
             continue
 
+        # Handle the cd command
         if command == "cd":
             if len(args) == 1:  # Ensure exactly one argument
                 path = args[0]
@@ -75,6 +91,7 @@ def main():
                 print("cd: usage: cd <directory>")
             continue
 
+        # Handle the type command
         if command == "type":
             if len(args) == 1:
                 cmd_to_check = args[0]
@@ -89,7 +106,8 @@ def main():
             else:
                 print("type: usage: type <command>")
             continue
-         # Handle external programs
+
+        # Handle external programs
         executable_path = find_executable(command)
         if executable_path:
             try:
@@ -102,7 +120,6 @@ def main():
                 print(f"Error running {command}: {e}")
         else:
             print(f"{command}: command not found")
-
 
 if __name__ == "__main__":
     main()
